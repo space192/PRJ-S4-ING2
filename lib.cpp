@@ -4,7 +4,7 @@ Graphe::Graphe(std::string nomFichier)
 {
     std::string poubelle;
     std::string type;
-    int num,poids, id1,id2;
+    int num,poids, id1,id2, temp;
     std::ifstream fichier(nomFichier);
     if(!fichier)
     {
@@ -31,17 +31,64 @@ Graphe::Graphe(std::string nomFichier)
             fichier >> id2;
             id1 = id1-1;
             id2 = id2-1;
-            m_tab[id1]->ajouterAdjacent(m_tab[id2], id1, calculerDuree(id1, id2, type));
+            temp = calculerDuree(id1, id2, type);
+            m_tab[id1]->ajouterAdjacent(m_tab[id2], id1, temp, type);
+            m_tab_trajet.push_back(Trajet(m_tab[id1], m_tab[id2], temp));
         }
-        afficher();
+        fichier >> poubelle;
+        for(int i =0 ; i < 12; i++)
+        {
+            fichier >> poubelle;
+            fichier >> m_interet[i];
+        }
+        for(int i = 0 ; i < m_ordre;i++)
+        {
+            m_I_preds.push_back(-1);
+        }
+    }
+    fichier.close();
+}
+
+void Graphe::Interet(std::string nomFichier)
+{
+    std::string temp;
+    bool continuer = true;
+    int tempInt[12];
+    std::string type[12] = {"V", "B", "R", "N", "KL", "SURF", "TPH", "TC", "TSD", "TS", "TK", "BUS"};
+    std::fstream fichier(nomFichier, std::ios::in | std::ios::out);
+    if(!fichier)
+    {
+        std::cout << "erreur lors de l'ouverture du fichier" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    else
+    {
+        std::cout << "Bienvenue dans la customisation des interets" << std::endl << "pour chaque type de déplacement vous devrez rentrez un interet" << std::endl;
+        std::cout << "rentrer l'interet de la piste:" << std::endl;
+        for(int i = 0 ; i < 12;i++)
+        {
+            std::cout << type[i] << ": ";
+            std::cin >> tempInt[i];
+        }
+        std::cout << "Interet enregistrer !" << std::endl;
+        fichier.seekp(2730);
+        for(int i = 0 ; i < 12 ; i++)
+        {
+            fichier << type[i];
+            fichier << " ";
+            fichier << tempInt[i];
+            fichier << std::endl;
+        }
+        fichier.close();
     }
 }
 
-void Sommet::ajouterAdjacent(Sommet* adjacent, int num, int poids) //methode qui ajoute un adjacent de maniere a respecter l'encapsulation
+void Sommet::ajouterAdjacent(Sommet* adjacent, int num, int poids, std::string type) //methode qui ajoute un adjacent de maniere a respecter l'encapsulation
 {
     m_adjacent.push_back(adjacent);
     m_tab_poids.push_back(poids);
     m_num = num;
+    m_type = type;
 }
 int Sommet::getIndice(int num)const
 {
@@ -74,6 +121,17 @@ void Sommet::afficher()const
     {
         std::cout << m_adjacent[i]->m_num+1 << " " << m_tab_poids[i] << " / ";
     }
+}
+Trajet::Trajet(Sommet* id1, Sommet* id2, int poids)
+{
+    m_tab_adj[0] = id1;
+    m_tab_adj[1] = id2;
+    m_poids = poids;
+}
+
+void Trajet::afficher()const
+{
+    std::cout << "depart: " << m_tab_adj[0]->getNum() << " arrive: " << m_tab_adj[1]->getNum() << " poids du trajet: " << m_poids << std::endl;
 }
 
 int Graphe::calculerDuree(int id1, int id2, std::string type)
@@ -139,4 +197,11 @@ int Graphe::calculerDuree(int id1, int id2, std::string type)
         }
     }
     return duree;
+}
+void Graphe::trouverSommetsTrajet()
+{
+    int choix;
+    std::cout << "Quel est le numero du trajet dont vous voullez observer le point de depart et le point d'arrive?" <<std::endl;
+    std::cin >> choix;
+    std::cout << "Le trajet numero " << choix << " part du sommet " << m_tab_trajet[choix-1].getSommet(0) + 1 << " et arrive au sommet " << m_tab_trajet[choix-1].getSommet(1) + 1 << std::endl;
 }

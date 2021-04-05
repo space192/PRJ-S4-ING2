@@ -132,3 +132,17 @@
 93	villaroger1	B 8	2
 94	villaroger2	B 2	1
 95	vitesse	KL 12 6
+
+interet
+V 1
+B 2
+R 3
+N 4
+KL 5
+SURF 6
+TPH -1
+TC -2
+TSD -3
+TS -4
+TK -5
+BUS -6
