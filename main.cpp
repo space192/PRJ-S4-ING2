@@ -7,9 +7,9 @@ int main()
     Graphe graphe("data_arcs.txt");
     while(continuer)
     {
-        std::cout << "Bienvenue dans le TP 3" << std::endl;
+
         std::cout << "que voulez vous faire:" << std::endl;
-        std::cout << "1.Algorithme de Dijkstra" << std::endl << "2.Afficher Graphe" << std::endl << "3.Consulter le point d'arrivee et de depart d'un trajet" << std::endl << "4.Consulter les trajets qui arrivent et qui partent d'un sommet" << std::endl << "5.BFS" << std::endl <<"6.Interet" << std::endl <<"7.Quitter" << std::endl;
+        std::cout << "1.Algorithme de Dijkstra" << std::endl << "2.Afficher Graphe" << std::endl << "3.Consulter le point d'arrivee et de depart d'un trajet" << std::endl << "4.Consulter les trajets qui arrivent et qui partent d'un sommet" << std::endl << "5.Djikstra avec interet" << std::endl <<"6.Interet" << std::endl << "7.Capacite" << std::endl << "8.Quitter" << std::endl;
         std::cin >> choix;
         if(choix == 1)
         {
@@ -42,21 +42,28 @@ int main()
         } 
         else if(choix == 4)
         {
-            
+            graphe.afficherSpecial();
         }
         else if(choix == 5)
         {
-            std::cout << "entrer un point de depart" << std::endl;
-            std::cin >> choix2;
-            graphe.BFS(choix2-1, true);
+            std::cout << "Quel est votre sommet de depart?" << std::endl;
+            std::cin >> depart;
+            std::cout << "Quel est votre sommet d'arrive?" << std::endl;
+            std::cin >> arrive;
+            graphe.DijkstraInteret(depart-1, arrive-1);
         }
         else if(choix == 6)
         {
-            graphe.Interet("data_arcs.txt");
+            graphe.fichier("data_arcs.txt", 1);
         }
         else if(choix == 7)
         {
+            graphe.fichier("data_arcs.txt", 2);
+        }
+        else if(choix == 8)
+        {
             continuer = false;
         }
+        
     }
 }

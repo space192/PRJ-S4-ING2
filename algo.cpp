@@ -97,26 +97,99 @@ void Graphe::DijkstraInteret(int debut, int arrive)
     std::vector<std::vector<int>> tab;
     std::vector<int> infos;
     int inteChemin = 0;
-    int temp,tempInte,min,minPoids;
+    int temp,maxi,cheminTotInter,tempInte,maxiInte;
     bool continuer = true;
     infos.push_back(0); //marquage
-    infos.push_back(-1); //interet
-    infos.push_back(-1); //predecesseur
+    infos.push_back(-1000); //interet
+    infos.push_back(-1000); //predecesseur
      for(int i=0; i < m_ordre; i++)
     {
         tab.push_back(infos);
     }
+
+    
+
     tab[debut][0] = 1;
     tab[debut][1] = 0;
-    tab[debut][2] = -1 ;
+    tab[debut][2] = -1;
+
+    
+
     for(unsigned int i = 0 ; i < m_tab[debut]->getSize();i++)
     {
        temp = m_tab[debut]->getNum(i);
+       std::cout << temp << std::endl;
        tempInte = m_tab[debut]->getInteret(i);
-       tab[temp][0] = 0;
        tab[temp][1] = tempInte;
        tab[temp][2] = debut;
     }
+    
+    while(continuer)
+    {
+        
+
+       // std::cout << "continuer 1" << std::endl;
+	    maxiInte = -1000;
+        for(int i = 0 ; i < m_ordre;i++)
+        {
+            if(((tab[i][0] == 0) && (tab[i][1] >= maxiInte) && (i != arrive)))
+            {
+               // std::cout << "salut" ;
+                maxi = i;
+                maxiInte = tab[i][1];
+            }
+        }
+        tab[maxi][0] = 1;
+        inteChemin = tab[maxi][1];
+       // std::cout << "continuer 2" << std::endl;
+        for(unsigned int i = 0 ; i < m_tab[maxi]->getSize();i++)
+        {
+            temp = m_tab[maxi]->getNum(i);
+            tempInte = m_tab[maxi]->getInteret(i);
+            if(temp == arrive)
+            {
+                tab[temp][0] = 1;
+                tab[temp][1] = inteChemin + tempInte;
+                tab[temp][2] = maxi;
+            }
+            else if(tab[temp][1] == -1000)
+            {
+                tab[temp][0] = 0;
+                tab[temp][1] = inteChemin + tempInte;
+                tab[temp][2] = maxi;
+            }
+            else if((tempInte + inteChemin ) > (tab[temp][1]))
+            {
+                if(tab[temp][0]!=1)
+                {
+                    tab[temp][0] = 0;
+                    tab[temp][1] = inteChemin + tempInte;
+                    tab[temp][2] = maxi;
+                }
+
+            }
+        }
+        continuer = false;
+        for(int i = 0 ; i < m_ordre;i++)
+        {
+            if(tab[i][0] == 0)
+            {
+                continuer = true;
+            }
+        }
+    }
+
+
+
+    temp = arrive;
+    while(temp != debut)
+    {
+        std::cout << temp +1 << " <-- " ;
+        temp = tab[temp][2];
+    }
+    std::cout << debut+1;
+    std::cout << " : interet ";
+    std::cout << tab[arrive][1] << std::endl;
 }
 
 void Graphe::BFS(int numero, bool affichage) //algorithme de BFS prend en parametre le numero du point de part valeur par defaut de l'affichage sur true
@@ -166,4 +239,10 @@ void Graphe::BFS(int numero, bool affichage) //algorithme de BFS prend en parame
             }
         }
     }
+}
+
+
+void Graphe::FF()
+{
+    
 }

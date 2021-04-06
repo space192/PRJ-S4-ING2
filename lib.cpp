@@ -3,7 +3,9 @@
 Graphe::Graphe(std::string nomFichier)
 {
     std::string poubelle;
+    char temp2;
     std::string type;
+    bool continuer = true;
     int num,poids, id1,id2, temp;
     std::ifstream fichier(nomFichier);
     if(!fichier)
@@ -13,6 +15,16 @@ Graphe::Graphe(std::string nomFichier)
     }
     else
     {
+        for(int i =0 ; i < 12; i++)
+        {
+            fichier >> poubelle;
+            fichier >> m_interet[poubelle];
+        }
+        for(int i =0 ; i < 12 ;i++)
+        {
+            fichier >> poubelle;
+            fichier >> m_capacite[poubelle];
+        }
         fichier >> m_ordre;
         for(int i = 0 ; i < m_ordre;i++)
         {
@@ -20,6 +32,7 @@ Graphe::Graphe(std::string nomFichier)
             fichier >> poubelle;
             fichier >> poids;
             m_tab.push_back(new Sommet(num-1, poids));
+            m_tab_inverse.push_back(new Sommet(num-1, poids));
         }
         fichier >> m_taille;
         for(int i = 0 ; i < m_taille;i++)
@@ -32,14 +45,9 @@ Graphe::Graphe(std::string nomFichier)
             id1 = id1-1;
             id2 = id2-1;
             temp = calculerDuree(id1, id2, type);
-            m_tab[id1]->ajouterAdjacent(m_tab[id2], id1, temp, type);
+            m_tab[id1]->ajouterAdjacent(m_tab[id2], id1, temp, m_interet[type], m_capacite[type]);
+            m_tab_inverse[id2]->ajouterAdjacent(m_tab[id1], id2, temp, m_interet[type], m_capacite[type]);
             m_tab_trajet.push_back(Trajet(m_tab[id1], m_tab[id2], temp));
-        }
-        fichier >> poubelle;
-        for(int i =0 ; i < 12; i++)
-        {
-            fichier >> poubelle;
-            fichier >> m_interet[i];
         }
         for(int i = 0 ; i < m_ordre;i++)
         {
@@ -49,11 +57,12 @@ Graphe::Graphe(std::string nomFichier)
     fichier.close();
 }
 
-void Graphe::Interet(std::string nomFichier)
+void Graphe::fichier(std::string nomFichier, int choix)
 {
-    std::string temp;
+    std::string tempstring, poubelle, temptype;
+    std::string temptab[12];
     bool continuer = true;
-    int tempInt[12];
+    int tempInt[12], temptaille, tempid, tempoids , tempdepart,temparrive;
     std::string type[12] = {"V", "B", "R", "N", "KL", "SURF", "TPH", "TC", "TSD", "TS", "TK", "BUS"};
     std::fstream fichier(nomFichier, std::ios::in | std::ios::out);
     if(!fichier)
@@ -63,7 +72,25 @@ void Graphe::Interet(std::string nomFichier)
     }
     else
     {
-        std::cout << "Bienvenue dans la customisation des interets" << std::endl << "pour chaque type de déplacement vous devrez rentrez un interet" << std::endl;
+        std::cout << "Bienvenue dans la customisation des";
+        if(choix == 1)
+        {
+            std::cout << "interet";
+        }
+        else if(choix == 2)
+        {
+            std::cout << "capacite";
+        }
+        std::cout << std::endl << "pour chaque type de déplacement vous devrez rentrez un";
+        if(choix == 1)
+        {
+            std::cout <<  "interet";
+        }
+        else if(choix == 2)
+        {
+            std::cout << "capacite";
+        }
+        std::cout << std::endl;
         std::cout << "rentrer l'interet de la piste:" << std::endl;
         for(int i = 0 ; i < 12;i++)
         {
@@ -71,24 +98,85 @@ void Graphe::Interet(std::string nomFichier)
             std::cin >> tempInt[i];
         }
         std::cout << "Interet enregistrer !" << std::endl;
-        fichier.seekp(2730);
-        for(int i = 0 ; i < 12 ; i++)
+        std::ofstream temp("temp.txt");
+        if(!temp)
         {
-            fichier << type[i];
-            fichier << " ";
-            fichier << tempInt[i];
-            fichier << std::endl;
+            std::cout << "erreur lors de la creation du fichier temporaire" << std::endl;
+            exit(EXIT_FAILURE);
         }
+        else
+        {
+            fichier.seekg(0);
+            if(choix == 1)
+            {
+                for(int i = 0; i < 12; i++)
+                {
+                    temp << type[i] << " " << tempInt[i] << std::endl;
+                    fichier >> poubelle;
+                    fichier >> poubelle;
+                }
+                for(int i = 0 ; i < 12; i++)
+                {
+                    fichier >> poubelle;
+                    temp << poubelle << " ";
+                    fichier >> poubelle;
+                    temp << poubelle << std::endl;
+                }
+            }
+            else if(choix == 2)
+            {
+                for(int i = 0 ; i < 12; i++)
+                {
+                    fichier >> poubelle;
+                    temp << poubelle << " ";
+                    fichier >> poubelle;
+                    temp << poubelle <<std::endl;
+                }
+                for(int i = 0; i < 12; i++)
+                {
+                    temp << type[i] << " " << tempInt[i] << std::endl;
+                    fichier >> poubelle;
+                    fichier >> poubelle;
+                }
+            }
+            fichier >> temptaille;
+            std::cout << temptaille << std::endl;
+            temp << temptaille << std::endl;
+            for(int i = 0 ; i < temptaille; i++)
+            {
+                fichier >> tempid;
+                fichier >> poubelle;
+                fichier >> tempoids;
+                temp << tempid << " " << poubelle << " " <<tempoids << std::endl;
+            }
+            fichier >> temptaille;
+            temp << temptaille << std::endl;
+            std::cout << temptaille << std::endl;
+            for(int i = 0 ; i < temptaille;i++)
+            {
+                fichier >> tempid;
+                fichier >> poubelle;
+                fichier >> temptype;
+                fichier >> tempdepart;
+                fichier >> temparrive;
+                temp << tempid << " " << poubelle << " " << temptype << " " << tempdepart << " " << temparrive << std::endl;
+            }
+            
+        }
+        
+        temp.close();
         fichier.close();
+        std::remove(nomFichier.c_str());
+        std::rename("temp.txt", nomFichier.c_str());
     }
 }
-
-void Sommet::ajouterAdjacent(Sommet* adjacent, int num, int poids, std::string type) //methode qui ajoute un adjacent de maniere a respecter l'encapsulation
+void Sommet::ajouterAdjacent(Sommet* adjacent, int num, int poids, int interet, int capacite) //methode qui ajoute un adjacent de maniere a respecter l'encapsulation
 {
     m_adjacent.push_back(adjacent);
     m_tab_poids.push_back(poids);
+    m_tab_interet.push_back(interet);
+    m_capacite.push_back(capacite);
     m_num = num;
-    m_type = type;
 }
 int Sommet::getIndice(int num)const
 {
@@ -119,7 +207,21 @@ void Sommet::afficher()const
 {
     for(unsigned int i = 0 ; i < m_adjacent.size(); i++) //methode d'affichage des adjacents afin de respecter l'encapsulation
     {
-        std::cout << m_adjacent[i]->m_num+1 << " " << m_tab_poids[i] << " / ";
+        std::cout << m_adjacent[i]->m_num+1 << " " << m_tab_poids[i];
+        std::cout << " " << m_tab_interet[i];
+        if(m_capacite[i] != -1)
+        {
+            std::cout << " " << m_capacite[i];
+        }
+        std::cout << "/";
+    }
+}
+
+void Graphe::afficherSpecial()const
+{
+    for(int i = 0 ; i < m_tab.size();i++)
+    {
+        std::cout << m_tab[i]->getNum() << std::endl;
     }
 }
 Trajet::Trajet(Sommet* id1, Sommet* id2, int poids)
