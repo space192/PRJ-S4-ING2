@@ -3,7 +3,6 @@
 Graphe::Graphe(std::string nomFichier)
 {
     std::string poubelle;
-    char temp2;
     std::string type;
     bool continuer = true;
     int num,poids, id1,id2, temp;
@@ -140,7 +139,6 @@ void Graphe::fichier(std::string nomFichier, int choix)
                 }
             }
             fichier >> temptaille;
-            std::cout << temptaille << std::endl;
             temp << temptaille << std::endl;
             for(int i = 0 ; i < temptaille; i++)
             {
@@ -151,7 +149,6 @@ void Graphe::fichier(std::string nomFichier, int choix)
             }
             fichier >> temptaille;
             temp << temptaille << std::endl;
-            std::cout << temptaille << std::endl;
             for(int i = 0 ; i < temptaille;i++)
             {
                 fichier >> tempid;
@@ -163,7 +160,6 @@ void Graphe::fichier(std::string nomFichier, int choix)
             }
             
         }
-        
         temp.close();
         fichier.close();
         std::remove(nomFichier.c_str());
@@ -214,14 +210,6 @@ void Sommet::afficher()const
             std::cout << " " << m_capacite[i];
         }
         std::cout << "/";
-    }
-}
-
-void Graphe::afficherSpecial()const
-{
-    for(int i = 0 ; i < m_tab.size();i++)
-    {
-        std::cout << m_tab[i]->getNum() << std::endl;
     }
 }
 Trajet::Trajet(Sommet* id1, Sommet* id2, int poids)

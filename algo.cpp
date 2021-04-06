@@ -99,82 +99,106 @@ void Graphe::DijkstraInteret(int debut, int arrive)
     int inteChemin = 0;
     int temp,maxi,cheminTotInter,tempInte,maxiInte;
     bool continuer = true;
+    bool continuer2 = true;
     infos.push_back(0); //marquage
     infos.push_back(-1000); //interet
     infos.push_back(-1000); //predecesseur
-     for(int i=0; i < m_ordre; i++)
+    for(int i=0; i < m_ordre; i++)
     {
         tab.push_back(infos);
     }
 
-    
+
 
     tab[debut][0] = 1;
     tab[debut][1] = 0;
     tab[debut][2] = -1;
 
-    
 
-    for(unsigned int i = 0 ; i < m_tab[debut]->getSize();i++)
+
+    for(unsigned int i = 0 ; i < m_tab[debut]->getSize(); i++)
     {
-       temp = m_tab[debut]->getNum(i);
-       std::cout << temp << std::endl;
-       tempInte = m_tab[debut]->getInteret(i);
-       tab[temp][1] = tempInte;
-       tab[temp][2] = debut;
+        temp = m_tab[debut]->getNum(i);
+        tempInte = m_tab[debut]->getInteret(i);
+        tab[temp][1] = tempInte;
+        tab[temp][2] = debut;
     }
-    
+
+
     while(continuer)
     {
-        
 
-       // std::cout << "continuer 1" << std::endl;
-	    maxiInte = -1000;
-        for(int i = 0 ; i < m_ordre;i++)
+        if(tab[arrive][0] == 0)
         {
-            if(((tab[i][0] == 0) && (tab[i][1] >= maxiInte) && (i != arrive)))
+            continuer2 = false;
+            continuer = false;
+        }
+
+        for(int i =0; i < m_ordre; i++)
+        {
+            if((tab[i][0] == 0)&&(tab[i][1]!= -1000)&&(i != arrive))
             {
-               // std::cout << "salut" ;
-                maxi = i;
-                maxiInte = tab[i][1];
+                continuer2= true;
+                continuer = true;
             }
         }
-        tab[maxi][0] = 1;
-        inteChemin = tab[maxi][1];
-       // std::cout << "continuer 2" << std::endl;
-        for(unsigned int i = 0 ; i < m_tab[maxi]->getSize();i++)
+
+
+        if(continuer2 == true)
         {
-            temp = m_tab[maxi]->getNum(i);
-            tempInte = m_tab[maxi]->getInteret(i);
-            if(temp == arrive)
+
+            // std::cout << "continuer 1" << std::endl;
+            maxiInte = -1000;
+            maxi = -1;
+            for(int i = 0 ; i < m_ordre; i++)
             {
-                tab[temp][0] = 1;
-                tab[temp][1] = inteChemin + tempInte;
-                tab[temp][2] = maxi;
+                if(((tab[i][0] == 0) && (tab[i][1] > maxiInte) && (i != arrive)))
+                {
+                    maxi = i;
+                    maxiInte = tab[i][1];
+                }
             }
-            else if(tab[temp][1] == -1000)
+            if(maxi == -1)
             {
-                tab[temp][0] = 0;
-                tab[temp][1] = inteChemin + tempInte;
-                tab[temp][2] = maxi;
+                maxi = arrive;
+
             }
-            else if((tempInte + inteChemin ) > (tab[temp][1]))
+
+
+
+
+            tab[maxi][0] = 1;
+            inteChemin = tab[maxi][1];
+            // std::cout << "continuer 2" << std::endl;
+            for(unsigned int i = 0 ; i < m_tab[maxi]->getSize(); i++)
             {
-                if(tab[temp][0]!=1)
+                temp = m_tab[maxi]->getNum(i);
+                tempInte = m_tab[maxi]->getInteret(i);
+                
+                if(tab[temp][1] == -1000)
                 {
                     tab[temp][0] = 0;
                     tab[temp][1] = inteChemin + tempInte;
                     tab[temp][2] = maxi;
                 }
+                else if((tempInte + inteChemin ) > (tab[temp][1]))
+                {
+                    if(tab[temp][0]!=1)
+                    {
+                        tab[temp][0] = 0;
+                        tab[temp][1] = inteChemin + tempInte;
+                        tab[temp][2] = maxi;
+                    }
 
+                }
             }
-        }
-        continuer = false;
-        for(int i = 0 ; i < m_ordre;i++)
-        {
-            if(tab[i][0] == 0)
+            continuer = false;
+            for(int i = 0 ; i < m_ordre; i++)
             {
-                continuer = true;
+                if(tab[i][0] == 0)
+                {
+                    continuer = true;
+                }
             }
         }
     }
@@ -238,6 +262,33 @@ void Graphe::BFS(int numero, bool affichage) //algorithme de BFS prend en parame
                 std::cout << numero + 1 << std::endl;
             }
         }
+    }
+    if(!affichage)
+    {
+        for(int i = 0 ; i < dejaVu.size();i++)
+        {
+            std::cout << dejaVu[i] << std::endl;
+        }
+    }
+}
+
+
+void Graphe::trouverChemin(int sommet)
+{
+    std::map<int,int> trajet;
+    for(int i = 0 ; i < m_tab.size();i++)
+    {
+        for(int j = 0 ; j < m_tab[i]->getSize();j++)
+        {
+            if(m_tab[i]->getNum(j) == sommet)
+            {
+                trajet[i] = j;
+            }
+        }
+    }
+    for(auto& elem:trajet)
+    {
+        std::cout << "depart: " << m_tab[elem.first]->getNum()+1 << " arrive: " << m_tab[elem.first]->getNum(elem.second)+1 << std::endl;
     }
 }
 

@@ -58,7 +58,7 @@ class Graphe
         void capacite(std::string nomFichier);
         void DijkstraInteret(int debut, int arrive);
         void FF();
-        void afficherSpecial()const;
+        void trouverChemin(int sommet);
     private:
         int m_ordre;
         int m_taille;
