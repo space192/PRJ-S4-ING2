@@ -14,6 +14,11 @@ Graphe::Graphe(std::string nomFichier)
     }
     else
     {
+        for(int i = 0 ; i < 12 ;i++)
+        {
+            fichier >> poubelle;
+            fichier >> m_temps[poubelle];
+        }
         for(int i =0 ; i < 12; i++)
         {
             fichier >> poubelle;
@@ -118,6 +123,10 @@ void Graphe::fichier(std::string nomFichier, int choix)
         {
             std::cout << "capacite";
         }
+        else if(choix == 3)
+        {
+            std::cout << "temps";
+        }
         std::cout << std::endl << "pour chaque type de déplacement vous devrez rentrez un";
         if(choix == 1)
         {
@@ -127,12 +136,16 @@ void Graphe::fichier(std::string nomFichier, int choix)
         {
             std::cout << "capacite";
         }
+        else if(choix == 3)
+        {
+            std::cout << "temps";
+        }
         std::cout << std::endl;
-        std::cout << "rentrer l'interet de la piste:" << std::endl;
+        std::cout << "entrer pour la piste:" << std::endl;
         for(int i = 0 ; i < 12;i++)
         {
             std::cout << typeNom[type[i]] << ": ";
-            std::cin >> tempInt[i];
+            tempInt[i] = choisir(-1000000, 100000);
         }
         std::cout << "Interet enregistrer !" << std::endl;
         std::ofstream temp("temp.txt");
@@ -144,8 +157,15 @@ void Graphe::fichier(std::string nomFichier, int choix)
         else
         {
             fichier.seekg(0);
-            if(choix == 1)
+            if(choix == 1) //interet
             {
+                for(int i = 0 ; i < 12; i++)
+                {
+                    fichier >> poubelle;
+                    temp << poubelle << " ";
+                    fichier >> poubelle;
+                    temp << poubelle << std::endl;
+                }
                 for(int i = 0; i < 12; i++)
                 {
                     temp << type[i] << " " << tempInt[i] << std::endl;
@@ -160,9 +180,9 @@ void Graphe::fichier(std::string nomFichier, int choix)
                     temp << poubelle << std::endl;
                 }
             }
-            else if(choix == 2)
+            else if(choix == 2) //capacite
             {
-                for(int i = 0 ; i < 12; i++)
+                for(int i = 0 ; i < 24; i++)
                 {
                     fichier >> poubelle;
                     temp << poubelle << " ";
@@ -174,6 +194,22 @@ void Graphe::fichier(std::string nomFichier, int choix)
                     temp << type[i] << " " << tempInt[i] << std::endl;
                     fichier >> poubelle;
                     fichier >> poubelle;
+                }
+            }
+            else if(choix == 3) //temps
+            {
+                for(int i = 0; i < 12; i++)
+                {
+                    temp << type[i] << " " << tempInt[i] << std::endl;
+                    fichier >> poubelle;
+                    fichier >> poubelle;
+                }
+                for(int i = 0 ; i < 24; i++)
+                {
+                    fichier >> poubelle;
+                    temp << poubelle << " ";
+                    fichier >> poubelle;
+                    temp << poubelle <<std::endl;
                 }
             }
             fichier >> temptaille;
@@ -284,56 +320,59 @@ int Graphe::calculerDuree(int id1, int id2, std::string type)
     {
         denivele = -denivele;
     }
-
     if(type == "V")
     {
-        duree = (300*denivele)/100;
+        duree = (m_temps["V"]*denivele)/100;
     }
     else if(type == "B")
     {
-        duree = (240*denivele)/100;
+        duree = (m_temps["B"]*denivele)/100;
     }
     else if(type == "R")
     {
-        duree = (180*denivele)/100;
+        duree = (m_temps["R"]*denivele)/100;
     }
     else if(type == "N")
     {
-        duree = (120*denivele)/100;
+        duree = (m_temps["N"]*denivele)/100;
     }
     else if(type == "KL")
     {
-        duree = (10*denivele)/100;
+        duree = (m_temps["KL"]*denivele)/100;
     }
     else if(type == "SURF")
     {
-        duree = (600*denivele)/100;
+        duree = (m_temps["SURF"]*denivele)/100;
     }
     else if(type == "TPH")
     {
-        duree = 240 + (120*denivele)/100;
+        duree = 240 + (m_temps["TPH"]*denivele)/100;
     }
     else if(type == "TC")
     {
-        duree = 120 + (1280*denivele)/100;
+        duree = 120 + (m_temps["TC"]*denivele)/100;
     }
     else if(type == "TSD")
     {
-        duree = 60 + (180*denivele)/100;
+        duree = 60 + (m_temps["TSD"]*denivele)/100;
     }
-    else if(type == "TS" || type == "TK")
+    else if(type == "TS")
     {
-        duree = 60 + (240*denivele)/100;
+        duree = 60 + (m_temps["TS"]*denivele)/100;
+    }
+    else if(type == "TK")
+    {
+        duree = 60 + (m_temps["TK"]*denivele)/100;
     }
     else if(type == "BUS")
     {
         if((id1 == 6 && id2 == 29)||(id1 == 29 && id2 == 6))
         {
-            duree = 2400;
+            duree = 600 + m_temps["BUS"];
         }
         else if((id1 == 29 && id2 == 35)||(id1 == 35 && id2 == 29))
         {
-            duree = 1800;
+            duree = m_temps["BUS"];
         }
     }
     return duree;
@@ -342,6 +381,36 @@ void Graphe::trouverSommetsTrajet()
 {
     int choix;
     std::cout << "Quel est le numero du trajet dont vous voullez observer le point de depart et le point d'arrive?" <<std::endl;
-    std::cin >> choix;
+    choix = choisir(1, m_tab_trajet.size());
     std::cout << "Le trajet numero " << choix << " part du sommet " << m_tab_trajet[choix-1].getSommet(0) + 1 << " et arrive au sommet " << m_tab_trajet[choix-1].getSommet(1) + 1 << std::endl;
+}
+
+
+int choisir(int plageDebut, int plageFin)
+{
+    int resultat;
+    bool erreur = false;
+    do
+    {
+        if(erreur == true)
+        {
+            std::cout << "Erreur dans l'entrer des valeurs veuillez entrez une valeur entre " << plageDebut << " et " << plageFin << std::endl;
+        }
+        std::cin >> resultat;
+        std::cin.clear();
+        std::cin.ignore();
+        erreur = true;
+    }while(resultat < plageDebut || resultat > plageFin);
+    return resultat;
+}
+
+void afficherTemps (int secondes)
+{
+    int heures;
+    int minutes;
+    int reste;
+    heures = secondes / 3600;
+    minutes = (secondes - heures * 3600)/ 60;
+    reste = secondes % 60;
+    std::cout << heures << " H "<< minutes << " m " << reste << " s ";
 }

@@ -73,8 +73,9 @@ void Graphe::Dijkstra(int debut, int arrive, bool gene)
             temp = tab[temp][2];
         }
         std::cout << debut+1;
-        std::cout << " : longeur ";
-        std::cout << tab[arrive][1] << std::endl;
+        std::cout << " : Duree du trajet ";
+        afficherTemps(tab[arrive][1]);
+        std::cout << std::endl;
     }
     else
     {
@@ -88,7 +89,9 @@ void Graphe::Dijkstra(int debut, int arrive, bool gene)
             }
             std::cout << debut+1;
             std::cout << " : duree du trajet ";
-            std::cout << tab[i][1] << std::endl;
+            afficherTemps(tab[i][1]);
+
+            std::cout << std::endl;
         }
     }
 }
@@ -536,9 +539,9 @@ int Graphe::FF(int affichage)
         m_tab_ecart.pop_back();
         m_tab_ecart.pop_back();
         std::cout << "entrez le point de depart dans le graphe d'ecart" << std::endl;
-        std::cin >> depart;
+        depart = choisir(1, m_tab_ecart.size());
         std::cout << "entrer le point d'arrive dans le graphe d'ecart" << std::endl;
-        std::cin >> arrive;
+        arrive = choisir(1, m_tab_ecart.size());
         legacyBFS(depart-1, arrive-1, true);
     }
     return flotMax;

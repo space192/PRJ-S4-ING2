@@ -68,7 +68,8 @@ class Graphe
         int FF(int affichage);
         void trouverChemin(int sommet);
         void OptimiserCapa();
-        
+        int getOrdre(){return m_ordre;};
+        int getTaille(){return m_taille;};   
     private:
         int m_ordre;
         int m_taille;
@@ -79,4 +80,8 @@ class Graphe
         std::vector<int> m_I_preds;
         std::map<std::string, int> m_interet;
         std::map<std::string, int> m_capacite;
+        std::map<std::string, int> m_temps;
 };
+
+int choisir(int plageDebut, int plageFin);
+void afficherTemps (int secondes);
