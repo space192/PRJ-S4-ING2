@@ -14,7 +14,7 @@ class Sommet
         Sommet(){};
         Sommet(int m_poids);
         Sommet(int num, int poids){m_num = num; m_poids = poids;};
-        void ajouterAdjacent(Sommet* adjacent, int num, int poids, int interet, int capacite);
+        void ajouterAdjacent(Sommet* adjacent, int num, int poids, int interet, int capacite, std::string type);
         void afficher()const;
         unsigned int getSize()const{return m_adjacent.size();};
         int getNum(int num)const{return m_adjacent[num]->m_num;};
@@ -22,12 +22,18 @@ class Sommet
         int getPoids()const{return m_poids;};
         int getPoids(int num)const{return m_tab_poids[num];};
         int getInteret(int num)const{return m_tab_interet[num];};
+        int getCapa(int num)const{return m_capacite[num];};
+        int getFlot(int num)const{return m_tab_flot[num];};
         int getIndice(int num)const;
+        std::string getType(int num)const{return m_tab_type[num];};
+        void ajouterFlot(int flot, int num);
     private:
         std::vector<Sommet*> m_adjacent;
         std::vector<int> m_tab_poids;
         std::vector<int> m_tab_interet;
         std::vector<int> m_capacite;
+        std::vector<int> m_tab_flot;
+        std::vector<std::string> m_tab_type;
         int m_num;
         int m_poids;
 };
@@ -49,21 +55,26 @@ class Graphe
 {
     public:
         Graphe(std::string nomFichier);
+        Graphe(Graphe *c, std::map<std::string, int> capacite);
         void afficher() const;
         void Dijkstra(int debut, int arrive, bool gene);
         int calculerDuree(int id1, int id2, std::string type);
-        void BFS(int numero, bool affichage);
+        std::vector<int> BFS(int numero,int numeroArrive ,bool affichage);
+        void legacyBFS(int numero,int numeroArrive, bool affichage);
         void trouverSommetsTrajet();
         void fichier(std::string nomFichier, int ligne);
         void capacite(std::string nomFichier);
         void DijkstraInteret(int debut, int arrive);
-        void FF();
+        int FF(int affichage);
         void trouverChemin(int sommet);
+        void OptimiserCapa();
+        
     private:
         int m_ordre;
         int m_taille;
         std::vector<Sommet*> m_tab;
-        std::vector<Sommet*> m_tab_inverse;
+        std::vector<Sommet*> m_tab_FF;
+        std::vector<Sommet*> m_tab_ecart;
         std::vector<Trajet> m_tab_trajet;
         std::vector<int> m_I_preds;
         std::map<std::string, int> m_interet;

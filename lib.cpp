@@ -31,7 +31,7 @@ Graphe::Graphe(std::string nomFichier)
             fichier >> poubelle;
             fichier >> poids;
             m_tab.push_back(new Sommet(num-1, poids));
-            m_tab_inverse.push_back(new Sommet(num-1, poids));
+            m_tab_FF.push_back(new Sommet(num-1, poids));
         }
         fichier >> m_taille;
         for(int i = 0 ; i < m_taille;i++)
@@ -44,11 +44,12 @@ Graphe::Graphe(std::string nomFichier)
             id1 = id1-1;
             id2 = id2-1;
             temp = calculerDuree(id1, id2, type);
-            m_tab[id1]->ajouterAdjacent(m_tab[id2], id1, temp, m_interet[type], m_capacite[type]);
-            m_tab_inverse[id2]->ajouterAdjacent(m_tab[id1], id2, temp, m_interet[type], m_capacite[type]);
+            m_tab[id1]->ajouterAdjacent(m_tab[id2], id1, temp, m_interet[type], m_capacite[type], type);
+            m_tab_FF[id1]->ajouterAdjacent(m_tab[id2], id1, temp, m_interet[type], m_capacite[type], type);
+            m_tab_FF[id2]->ajouterAdjacent(m_tab[id1], id2, -temp, m_interet[type], -m_capacite[type], type);
             m_tab_trajet.push_back(Trajet(m_tab[id1], m_tab[id2], temp));
         }
-        for(int i = 0 ; i < m_ordre;i++)
+        for(int i = 0 ; i < m_ordre+2;i++)
         {
             m_I_preds.push_back(-1);
         }
@@ -56,10 +57,47 @@ Graphe::Graphe(std::string nomFichier)
     fichier.close();
 }
 
+Graphe::Graphe(Graphe *c, std::map<std::string, int> capacite)
+{
+    m_ordre = c->m_ordre;
+    m_taille = c->m_taille;
+    for(int i = 0 ; i < c->m_tab_FF.size();i++)
+    {
+        m_tab_FF.push_back(new Sommet(c->m_tab_FF[i]->getNum(), c->m_tab_FF[i]->getPoids()));
+    }
+    for(int i = 0 ; i < c->m_tab_FF.size();i++)
+    {
+        for(int j = 0 ; j < c->m_tab_FF[i]->getSize();j++)
+        {
+            if(c->m_tab_FF[i]->getCapa(j) > 0)
+            {
+                m_tab_FF[c->m_tab_FF[i]->getNum()]->ajouterAdjacent(m_tab_FF[c->m_tab_FF[i]->getNum(j)], c->m_tab_FF[i]->getNum(), c->m_tab_FF[i]->getPoids(j), c->m_tab_FF[i]->getInteret(j), capacite[c->m_tab_FF[i]->getType(j)], c->m_tab_FF[i]->getType(j));
+            }
+            else if(c->m_tab_FF[i]->getCapa(j) < 0)
+            {
+                m_tab_FF[c->m_tab_FF[i]->getNum()]->ajouterAdjacent(m_tab_FF[c->m_tab_FF[i]->getNum(j)], c->m_tab_FF[i]->getNum(), c->m_tab_FF[i]->getPoids(j), c->m_tab_FF[i]->getInteret(j), -capacite[c->m_tab_FF[i]->getType(j)], c->m_tab_FF[i]->getType(j));
+            }
+        }
+    }
+}
+
 void Graphe::fichier(std::string nomFichier, int choix)
 {
     std::string tempstring, poubelle, temptype;
     std::string temptab[12];
+    std::map<std::string, std::string> typeNom;
+    typeNom["V"] = "Piste Verte";
+    typeNom["B"] = "Piste Bleue";
+    typeNom["R"] = "Piste Rouge";
+    typeNom["N"] = "Piste Noir";
+    typeNom["KL"] = "Piste kilometre lance";
+    typeNom["SURF"] = "SnowPark";
+    typeNom["TPH"] = "Telepherique";
+    typeNom["TC"] = "Telecabine";
+    typeNom["TSD"] = "Telesiege debrayable";
+    typeNom["TS"] = "Telesiege";
+    typeNom["TK"] = "Teleski";
+    typeNom["BUS"] = "Navettes";
     bool continuer = true;
     int tempInt[12], temptaille, tempid, tempoids , tempdepart,temparrive;
     std::string type[12] = {"V", "B", "R", "N", "KL", "SURF", "TPH", "TC", "TSD", "TS", "TK", "BUS"};
@@ -93,7 +131,7 @@ void Graphe::fichier(std::string nomFichier, int choix)
         std::cout << "rentrer l'interet de la piste:" << std::endl;
         for(int i = 0 ; i < 12;i++)
         {
-            std::cout << type[i] << ": ";
+            std::cout << typeNom[type[i]] << ": ";
             std::cin >> tempInt[i];
         }
         std::cout << "Interet enregistrer !" << std::endl;
@@ -166,14 +204,22 @@ void Graphe::fichier(std::string nomFichier, int choix)
         std::rename("temp.txt", nomFichier.c_str());
     }
 }
-void Sommet::ajouterAdjacent(Sommet* adjacent, int num, int poids, int interet, int capacite) //methode qui ajoute un adjacent de maniere a respecter l'encapsulation
+void Sommet::ajouterAdjacent(Sommet* adjacent, int num, int poids, int interet, int capacite, std::string type) //methode qui ajoute un adjacent de maniere a respecter l'encapsulation
 {
     m_adjacent.push_back(adjacent);
     m_tab_poids.push_back(poids);
     m_tab_interet.push_back(interet);
     m_capacite.push_back(capacite);
+    m_tab_flot.push_back(0);
+    m_tab_type.push_back(type);
     m_num = num;
 }
+
+void Sommet::ajouterFlot(int flot, int num)
+{
+    m_tab_flot[num] += flot;
+}
+
 int Sommet::getIndice(int num)const
 {
     int temp;
@@ -189,8 +235,8 @@ int Sommet::getIndice(int num)const
 
 void Graphe::afficher()const
 {
-    std::cout << "ordre = " << m_ordre << std::endl;
-    std::cout << "listes d'adjacence :" << std::endl;
+    std::cout << "Ordre du graphe = " << m_ordre << std::endl;
+    std::cout << "Sommet X : numero adjacent - duree - interet - capacite - flot" << std::endl;
     for(unsigned int i = 0 ; i < m_tab.size() ; i++)
     {
         std::cout << "sommet " << i+1 << " : ";
@@ -203,13 +249,17 @@ void Sommet::afficher()const
 {
     for(unsigned int i = 0 ; i < m_adjacent.size(); i++) //methode d'affichage des adjacents afin de respecter l'encapsulation
     {
-        std::cout << m_adjacent[i]->m_num+1 << " " << m_tab_poids[i];
-        std::cout << " " << m_tab_interet[i];
+        std::cout << m_adjacent[i]->m_num+1 << "  " << m_tab_poids[i];
+        std::cout << "  "<< m_tab_interet[i];
         if(m_capacite[i] != -1)
         {
-            std::cout << " " << m_capacite[i];
+            std::cout << "  " << m_capacite[i];
         }
-        std::cout << "/";
+        std::cout << "  " << m_tab_flot[i];
+        if(i != m_adjacent.size()-1)
+        {
+            std::cout << " // ";
+        }
     }
 }
 Trajet::Trajet(Sommet* id1, Sommet* id2, int poids)

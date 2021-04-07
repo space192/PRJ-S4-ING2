@@ -10,7 +10,8 @@ int main()
     {
 
         std::cout << "que voulez vous faire:" << std::endl;
-        std::cout << "1.Afficher Graphe" << std::endl << "2.Chemin le plus court" << std::endl << "3.chemin le plus court avec interet" << std::endl << "4.Consulter le point d'arrivee et de depart d'un trajet" << std::endl << "5.Consulter les trajets qui arrivent et qui partent d'un sommet" << std::endl <<"6.Interet" << std::endl << "7.Capacite" << std::endl << "8.Quitter" << std::endl;
+        std::cout << "1.Afficher Graphe" << std::endl << "2.Chemin le plus court" << std::endl << "3.chemin le plus court avec interet" << std::endl << "4.Consulter le point d'arrivee et de depart d'un trajet" << std::endl;
+        std::cout << "5.Consulter les trajets qui arrivent et qui partent d'un sommet" << std::endl << "6.Optimiser le flot des pistes" << std::endl <<"7.Interet" << std::endl << "8.Capacite" << std::endl << "9.Optimiser les capacite max " << std::endl << "10.Quitter" << std::endl;
         std::cin >> choix;
         if(choix == 1)
         {
@@ -56,18 +57,32 @@ int main()
         }
         else if(choix == 6)
         {
-            graphe->fichier("data_arcs.txt", 1);
+            std::cout << "Voulez-vous ?"<< std::endl << "1.Calculer le flot maximal en affichant les etapes de calcul?" << std::endl;
+            std::cout << "2.Calculer le flot maximal sans afficher les etapes de calcul?" << std::endl ;
+            std::cout << "3.Afficher le graphe d'ecart des chemin trouve?" << std::endl;
+            std::cin >> choix2;
+            graphe->FF(choix2);
             delete graphe;
             graphe = new Graphe("data_arcs.txt");
         }
         else if(choix == 7)
         {
-            graphe->fichier("data_arcs.txt", 2);
+            graphe->fichier("data_arcs.txt", 1);
             delete graphe;
             graphe = new Graphe("data_arcs.txt");
         }
         else if(choix == 8)
         {
+            graphe->fichier("data_arcs.txt", 2);
+            delete graphe;
+            graphe = new Graphe("data_arcs.txt");
+        }
+        else if(choix == 9)
+        {
+            graphe->OptimiserCapa();
+        }
+        else if(choix == 10)
+        {   
             continuer = false;
         }
         
