@@ -693,50 +693,50 @@ void Graphe::OptimiserCapa() //Fonction qui nous permet d'optimiser les capcité
         std::cout << elem.first << " : " << elem.second << std::endl;
     }
 
-    std::cout << "Flot d'arrive " << tempO->FF(4) << std::endl; // On affiche le flot max d'arrivé pour cérifier que sa valeur n'a pas été modifiée
+    std::cout << "Flot d'arrive " << tempO->FF(4) << std::endl; // On affiche le flot max d'arrivé pour vérifier que sa valeur n'a pas été modifiée
 }
 
 void Graphe::Kruskal(int choix, bool affichage)
 {
-    std::vector<std::vector<int>> tab;
-    std::vector<std::vector<int>> numK;
-    std::vector<int> tempInfos;
+    std::vector<std::vector<int>> tab;// tableau qui contient toutes les informations des trajets
+    std::vector<std::vector<int>> numK;//tableau qui associe aux sommets plusieurs numéros
+    std::vector<int> tempInfos;//variables qui permettent l'initialisation des tableaux
     std::vector<int> tempInfos2;
-    int num1;
-    int num2;
-    int num3;
-    int num4;
+    int num1;//correspond à un sommet
+    int num2;//correspond à un sommet
+    int num3;//correspond à un numéro associé à un sommet
+    int num4;//correspond à un numéro associé à un sommet
     int tempPoids;
-    int dureeTot = 0;
+    int dureeTot = 0;//somme de toutes les duree ou tous les interets
     int trajetSelec = 0;
     bool continuer = true;
-    for(int i = 0; i < m_ordre; i ++)
+    for(int i = 0; i < m_ordre; i ++)//initialisation de numK
     {
         tempInfos2.push_back(i);
         numK.push_back(tempInfos2);
         tempInfos2.clear();
     }
-    for(unsigned int i = 0; i < m_tab_trajet.size(); i ++)
+    for(unsigned int i = 0; i < m_tab_trajet.size(); i ++)//initalisation de tab qui contient toutes les informations des trajets
     {
         num1 = m_tab_trajet[i].getSommet(0);
         num2 = m_tab_trajet[i].getSommet(1);
 
         if(choix == 1)
         {
-            tempPoids = m_tab_trajet[i].getPoids();
+            tempPoids = m_tab_trajet[i].getPoids();//On récupère une durée dans ce cas
         }
         else if(choix == 2)
         {
-            tempPoids = m_tab_trajet[i].getInteret();
+            tempPoids = m_tab_trajet[i].getInteret();// On récupère
         }
 
 
         if( num1 > num2)
         {
-            tempInfos.push_back(num2);
-            tempInfos.push_back(num1);
-            tempInfos.push_back(tempPoids);
-            tempInfos.push_back(0);
+            tempInfos.push_back(num2);//numéro du premier sommet
+            tempInfos.push_back(num1);// numéro du deuxième sommet
+            tempInfos.push_back(tempPoids);//durée ou intérêt du trajet
+            tempInfos.push_back(0);//si le trajet a été sélectionné
             tempInfos.push_back(0);
         }
         else
@@ -750,7 +750,7 @@ void Graphe::Kruskal(int choix, bool affichage)
         tab.push_back(tempInfos);
         tempInfos.clear();
     }
-    if(choix == 1)
+    if(choix == 1)//permet de trier le tableau de trajets
     {
         std::sort(tab.begin(),tab.end(), [](const std::vector<int> &id1, const std::vector<int> &id2){if(id1[2] == id2[2]){return id1[0] < id2[0];}else{return id1[2] < id2[2];}});
     }
@@ -770,11 +770,11 @@ void Graphe::Kruskal(int choix, bool affichage)
             {
                 if(numK[i][j] == num1)
                 {
-                    num3 = i;
+                    num3 = i;// on sélectionne les numéros associé au premier sommet de notre trajet
                 }
                 if(numK[i][j] == num2)
                 {
-                    num4 = i;
+                    num4 = i;// on sélectionne les numéros associé au premier sommet de notre trajet
                 }
             }
         }
@@ -782,7 +782,7 @@ void Graphe::Kruskal(int choix, bool affichage)
         {
             for(int i = numK[num4].size() - 1; i >= 0 ;i--)
             {
-                numK[num3].push_back(numK[num4][i]);
+                numK[num3].push_back(numK[num4][i]);//permet d'appliaquer le numéro sélectionné aux autres sommets
                 numK[num4].pop_back();
             }
             tab[trajetSelec][3] = 1 ;
@@ -791,11 +791,11 @@ void Graphe::Kruskal(int choix, bool affichage)
         {
             tab[trajetSelec][3] = 0 ;
         }
-        if(affichage)
+        if(affichage)//affichage des différentes étapes
         {
            if(tab[trajetSelec][3] == 1)
             {
-            for(unsigned int i = 0; i < numK.size();i++)
+            for(unsigned int i = 0; i < numK.size();i++)//Pour chaque numéro on affiche les sommet ayant ce numéro
                 {
                     if(numK[i].size() != 0)
                     {
@@ -812,14 +812,14 @@ void Graphe::Kruskal(int choix, bool affichage)
         }
         for(unsigned int i = 0; i < numK.size();i++)
         {
-            if(numK[i].size() == 37)
+            if(numK[i].size() == 37)//Si tous les sommets ont le même numéro ont arrête l'algorithme
             {
                 continuer = false;
             }
         }
         trajetSelec ++;
     }
-    for(unsigned int i = 0; i < tab.size(); i ++)
+    for(unsigned int i = 0; i < tab.size(); i ++)// affichage du graphe final
     {
         if(tab[i][3] == 1)
         {
@@ -827,13 +827,13 @@ void Graphe::Kruskal(int choix, bool affichage)
              dureeTot += tab[i][2];
         }
     }
-    if(choix == 1)
+    if(choix == 1)//dans le cas ou on réalise l algorithme de Kruskal à partir des durée
     {
         std::cout << "La duree totale pour parcourir l'ensemble des sommets est :" ;
         afficherTemps(dureeTot);
         std::cout << std::endl;
     }
-    else if(choix == 2)
+    else if(choix == 2)//dans le cas ou on réaliser Kruskal à partir des intérêts
     {
         std::cout << "En parcourant intelligemment tous les sommets l'interet maximum que l'on peut obtenir est : " << dureeTot ;
         std::cout << std::endl;
